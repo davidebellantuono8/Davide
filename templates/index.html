@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Equity Analyzer Pro</title>
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+          <polyline points="16 7 22 7 22 13"></polyline>
+        </svg>
+        <span>Equity Analyzer <span class="pro">Pro</span></span>
+      </div>
+      <nav class="nav-tabs">
+        <button class="nav-tab active" data-tab="analyze">Analyze</button>
+        <button class="nav-tab" data-tab="compare">Compare</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- ── ANALYZE TAB ── -->
+    <section id="tab-analyze" class="tab-section active">
+      <div class="search-card">
+        <h2>Stock Analysis</h2>
+        <p class="subtitle">Enter a ticker symbol to get a full fundamental &amp; technical breakdown.</p>
+        <form id="analyze-form" class="search-form">
+          <input id="ticker-input" type="text" placeholder="e.g. AAPL, MSFT, TSLA" autocomplete="off" spellcheck="false" />
+          <select id="period-select">
+            <option value="3mo">3 Months</option>
+            <option value="6mo">6 Months</option>
+            <option value="1y" selected>1 Year</option>
+            <option value="2y">2 Years</option>
+            <option value="5y">5 Years</option>
+          </select>
+          <button type="submit" class="btn-primary">Analyze</button>
+        </form>
+      </div>
+
+      <div id="analyze-error" class="error-box hidden"></div>
+      <div id="analyze-loader" class="loader hidden"><div class="spinner"></div><span>Fetching data…</span></div>
+
+      <div id="analyze-results" class="hidden">
+        <!-- Company header -->
+        <div class="company-header card">
+          <div class="company-info">
+            <h1 id="res-name"></h1>
+            <span id="res-ticker" class="ticker-badge"></span>
+            <span id="res-sector" class="sector-badge"></span>
+          </div>
+          <div class="price-block">
+            <span id="res-price" class="price"></span>
+            <span id="res-change" class="change"></span>
+          </div>
+        </div>
+
+        <!-- KPI grid -->
+        <div class="kpi-grid">
+          <div class="kpi-card"><span class="kpi-label">Market Cap</span><span class="kpi-value" id="kpi-mktcap">—</span></div>
+          <div class="kpi-card"><span class="kpi-label">P/E (TTM)</span><span class="kpi-value" id="kpi-pe">—</span></div>
+          <div class="kpi-card"><span class="kpi-label">Fwd P/E</span><span class="kpi-value" id="kpi-fpe">—</span></div>
+          <div class="kpi-card"><span class="kpi-label">P/B</span><span class="kpi-value" id="kpi-pb">—</span></div>
+          <div class="kpi-card"><span class="kpi-label">EPS (TTM)</span><span class="kpi-value" id="kpi-eps">—</span></div>
+          <div class="kpi-card"><span class="kpi-label">Dividend Yield</span><span class="kpi-value" id="kpi-div">—</span></div>
+          <div class="kpi-card"><span class="kpi-label">Beta</span><span class="kpi-value" id="kpi-beta">—</span></div>
+          <div class="kpi-card"><span class="kpi-label">52W High</span><span class="kpi-value" id="kpi-52h">—</span></div>
+          <div class="kpi-card"><span class="kpi-label">52W Low</span><span class="kpi-value" id="kpi-52l">—</span></div>
+          <div class="kpi-card"><span class="kpi-label">Volatility (Ann.)</span><span class="kpi-value" id="kpi-vol">—</span></div>
+          <div class="kpi-card"><span class="kpi-label">Sharpe Ratio</span><span class="kpi-value" id="kpi-sharpe">—</span></div>
+          <div class="kpi-card"><span class="kpi-label">RSI (14)</span><span class="kpi-value" id="kpi-rsi">—</span></div>
+        </div>
+
+        <!-- Charts -->
+        <div class="chart-card card">
+          <div class="chart-header"><span>Price Chart</span></div>
+          <div id="price-chart"></div>
+        </div>
+        <div class="chart-card card">
+          <div class="chart-header"><span>Volume</span></div>
+          <div id="volume-chart"></div>
+        </div>
+
+        <!-- Signal summary -->
+        <div class="signal-card card">
+          <h3>Technical Signals</h3>
+          <div id="signals"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── COMPARE TAB ── -->
+    <section id="tab-compare" class="tab-section hidden">
+      <div class="search-card">
+        <h2>Compare Stocks</h2>
+        <p class="subtitle">Enter multiple ticker symbols separated by commas to compare performance.</p>
+        <form id="compare-form" class="search-form">
+          <input id="compare-input" type="text" placeholder="e.g. AAPL, MSFT, GOOG" autocomplete="off" spellcheck="false" />
+          <select id="compare-period">
+            <option value="3mo">3 Months</option>
+            <option value="6mo">6 Months</option>
+            <option value="1y" selected>1 Year</option>
+            <option value="2y">2 Years</option>
+            <option value="5y">5 Years</option>
+          </select>
+          <button type="submit" class="btn-primary">Compare</button>
+        </form>
+      </div>
+
+      <div id="compare-error" class="error-box hidden"></div>
+      <div id="compare-loader" class="loader hidden"><div class="spinner"></div><span>Fetching data…</span></div>
+
+      <div id="compare-results" class="hidden">
+        <div class="chart-card card">
+          <div id="compare-chart"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
